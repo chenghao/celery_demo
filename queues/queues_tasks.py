@@ -1,6 +1,7 @@
 # coding:utf-8
 
-from projq.projq_celery import app
+from celery_queues import app
+import random
 
 
 @app.task(queue="web_tasks")
@@ -14,7 +15,7 @@ def add(x, y):
     return x + y
 
 
-@app.task(bind=True, queue="default")
+@app.task(bind=True, queue="default", max_retries=3)
 def div(self, x, y):
     """
     指定 div 函数使用 default 队列
@@ -25,7 +26,7 @@ def div(self, x, y):
     try:
         result = x / y
     except ZeroDivisionError as e:
-        raise self.retry(exc=e, countdown=5, max_retries=5)
+        raise self.retry(exc=e, countdown=int(random.uniform(2, 4) ** self.request.retries))
     return result
 
 

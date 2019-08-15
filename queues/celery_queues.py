@@ -1,9 +1,8 @@
 # coding:utf-8
-from gevent import monkey
-monkey.patch_all()
+
 from celery import Celery
 
-app = Celery(__name__, include=['tasks_test'])
+app = Celery(__name__, include=['queues_tasks'])
 
 app.config_from_object('celeryconfig')
 
